@@ -32,13 +32,23 @@ const serializeTodo = todo => ({
 
 app
   .route('/v1/todos')
-  .get(/* Your code here */)
+  .get((req, res, next) => {
+    //call to service
+    TodoService.getTodos(req.app.get('db'))
+    //chain then 
+      .then(todos =>
+        //send client response
+        res.status(200).json(todos))
+      // move to error handling if an error occurs
+      .catch(next);
+
+  })
   .post(/* Your code here */)
 
 app
   .route('/v1/todos/:todo_id')
   .all((req, res, next) => {
-    if(isNaN(parseInt(req.params.todo_id))) {
+    if (isNaN(parseInt(req.params.todo_id))) {
       return res.status(404).json({
         error: { message: `Invalid id` }
       })
