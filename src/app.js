@@ -43,7 +43,23 @@ app
       .catch(next);
 
   })
-  .post(/* Your code here */)
+  .post(jsonParser, (req, res, next) => {
+    //extract data from req body
+    const { title } = req.body;
+    const newTodo = { title }  ;
+    // verify that no data is missing
+    if (!newTodo.title) { 
+      return res.status(400).send({message: 'Bad request'});
+    }
+    // remove XSS code /serialize
+    //send 201 and new object :) 
+    TodoService.insertTodo(req.app.get('db'),  serializeTodo(newTodo))
+      .then(newTodo => 
+        res
+          .status(201)
+          .location(path.posix.join(req.originalUrl, `/${newTodo.id}`))
+          .json(newTodo));
+  });
 
 app
   .route('/v1/todos/:todo_id')
